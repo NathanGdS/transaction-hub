@@ -43,7 +43,7 @@ func main() {
 			if publishErr != nil {
 				log.Printf("Erro ao publicar mensagem: %v", publishErr)
 			}
-			time.Sleep(time.Second * 3)
+			time.Sleep(time.Millisecond * 100)
 		}
 	}()
 

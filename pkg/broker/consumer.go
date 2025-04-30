@@ -2,8 +2,10 @@ package broker
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strconv"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -47,14 +49,15 @@ func CreateTopicIfNotExists(topic string, servers string) error {
 func Consume(topics []string, servers string, msgChan chan *kafka.Message) {
 
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{servers},
-		GroupID:  "myGroup",
-		Topic:    topics[0],
-		MinBytes: 10e3, // 10KB
-		MaxBytes: 10e6, // 10MB
+		Brokers:     []string{servers},
+		GroupID:     "cali-group",
+		Topic:       topics[0],
+		StartOffset: kafka.FirstOffset,
+		MaxWait:     1 * time.Second,
 	})
-	defer r.Close()
 
+	defer r.Close()
+	fmt.Println("Consumindo mensagens do tópico:", topics[0])
 	for {
 		msg, err := r.ReadMessage(context.Background())
 		if err != nil {

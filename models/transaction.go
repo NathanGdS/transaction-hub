@@ -1,0 +1,89 @@
+package models
+
+import (
+	"errors"
+	"math"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrorInvalidPaymentMethod = errors.New("payment method must be PIX or CREDIT_CARD")
+	ErrorInvalidCurrencyCode  = errors.New("currency code must be BRL or USD")
+	ErrorInvalidAmount        = errors.New("amount must be greater than 0")
+	ErrorInvalidDescription   = errors.New("description is required")
+)
+
+const (
+	PaymentMethodPIX        = "PIX"
+	PaymentMethodCreditCard = "CREDIT_CARD"
+)
+
+type TransactionRequestDto struct {
+	Amount        float64 `json:"amount" validate:"required,min=0"`
+	PaymentMethod string  `json:"paymentMethod" validate:"required,oneof=PIX CREDIT_CARD"`
+	CurrencyCode  string  `json:"currencyCode" validate:"required,oneof=BRL USD"`
+	Description   string  `json:"description" validate:"required"`
+}
+
+type Transaction struct {
+	ID            string  `json:"id"`
+	Amount        float64 `json:"amount"`
+	PaymentMethod string  `json:"paymentMethod"`
+	CurrencyCode  string  `json:"currencyCode"`
+	Description   string  `json:"description"`
+}
+
+type TransactionResponseDto struct {
+	ID string `json:"id"`
+}
+
+func (t *Transaction) Validate() []error {
+	var errors []error
+	if t.Amount <= 0 {
+		errors = append(errors, ErrorInvalidAmount)
+	}
+
+	if t.PaymentMethod != PaymentMethodPIX && t.PaymentMethod != PaymentMethodCreditCard {
+		errors = append(errors, ErrorInvalidPaymentMethod)
+	}
+
+	if t.CurrencyCode != "BRL" && t.CurrencyCode != "USD" {
+		errors = append(errors, ErrorInvalidCurrencyCode)
+	}
+
+	if t.Description == "" {
+		errors = append(errors, ErrorInvalidDescription)
+	}
+
+	if len(errors) > 0 {
+		return errors
+	}
+
+	return nil
+}
+
+func NewTransaction(amount float64, paymentMethod string, currencyCode string, description string) (*Transaction, []error) {
+	transaction := &Transaction{
+		ID:            uuid.New().String(),
+		Amount:        math.Round(amount*100) / 100,
+		PaymentMethod: paymentMethod,
+		CurrencyCode:  currencyCode,
+		Description:   description,
+	}
+	err := transaction.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	return transaction, nil
+}
+
+func TransactionFromDto(dto *TransactionRequestDto) (*Transaction, []error) {
+	transaction, err := NewTransaction(dto.Amount, dto.PaymentMethod, dto.CurrencyCode, dto.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	return transaction, nil
+}

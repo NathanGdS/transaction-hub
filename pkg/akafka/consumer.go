@@ -1,4 +1,4 @@
-package broker
+package akafka
 
 import (
 	"context"

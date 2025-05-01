@@ -1,71 +1,41 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
-	"math/rand"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/NathanGdS/cali-challenge/models"
-	akafka "github.com/NathanGdS/cali-challenge/pkg/broker"
-	"github.com/segmentio/kafka-go"
+	"github.com/NathanGdS/cali-challenge/handlers"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/consumers"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// publish message
+	// Configs do kafka
+	kafkaBroker := akafka.NewKafkaBroker("host.docker.internal:9094")
+	defer kafkaBroker.Close()
+
+	transactionConsumer := consumers.NewTransactionConsumer(kafkaBroker)
+	go transactionConsumer.Start()
+
+	// Configs Gin
+	router := gin.Default()
+
+	transactionHandler := handlers.NewTransactionHandler(kafkaBroker)
+	router.POST("/transaction", transactionHandler.CreateTransaction)
+
+	// Graceful shutdown config
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	go func() {
-		for {
-			randomNumber := rand.Intn(2)
-			paymentMethod := "PIX"
-			currencyCode := "BRL"
-			if randomNumber == 1 {
-				paymentMethod = "CREDIT_CARD"
-				currencyCode = "USD"
-			}
-
-			transactionDto := &models.TransactionRequestDto{
-				Amount:        rand.Float64() * 100,
-				PaymentMethod: paymentMethod,
-				CurrencyCode:  currencyCode,
-				Description:   "Teste" + time.Now().Format("2006-01-02 15:04:05"),
-			}
-
-			jsonData, err := json.Marshal(transactionDto)
-			if err != nil {
-				log.Printf("Erro ao converter para JSON: %v", err)
-				continue
-			}
-
-			fmt.Printf("Publicando mensagem: %s\n", string(jsonData))
-
-			publishErr := akafka.Publish("test", "host.docker.internal:9094", jsonData)
-			if publishErr != nil {
-				log.Printf("Erro ao publicar mensagem: %v", publishErr)
-			}
-			time.Sleep(time.Millisecond * 100)
+		if err := router.Run(":8080"); err != nil {
+			log.Fatalf("Erro ao iniciar o servidor: %v", err)
 		}
 	}()
 
-	msgChan := make(chan *kafka.Message)
-	go akafka.Consume([]string{"test"}, "host.docker.internal:9094", msgChan)
-
-	for msg := range msgChan {
-		fmt.Printf("Consumindo mensagem: %s\n", string(msg.Value))
-
-		var transactionDto models.TransactionRequestDto
-		err := json.Unmarshal(msg.Value, &transactionDto)
-		if err != nil {
-			log.Printf("Erro ao converter para JSON: %v", err)
-			continue
-		}
-
-		transaction, errs := models.TransactionFromDto(&transactionDto)
-		if len(errs) > 0 {
-			log.Printf("Erro ao converter DTO para Transaction: %v", errs)
-			continue
-		}
-
-		fmt.Printf("Transação recebida: %+v\n", transaction)
-	}
+	<-quit
+	log.Println("Encerrando o servidor...")
 }

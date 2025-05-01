@@ -1,0 +1,13 @@
+
+### POST /transactions
+
+POST http://localhost:8080/transaction
+Content-Type: application/json
+
+{
+    "amount": 100,
+    "paymentMethod": "PIX",
+    "currencyCode": "BRL",
+    "description": "Compra de teste"
+}
+

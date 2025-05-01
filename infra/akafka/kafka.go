@@ -11,15 +11,23 @@ import (
 	"go.uber.org/zap"
 )
 
-type KafkaBroker struct {
+// KafkaBroker é a interface que define os métodos necessários para um broker Kafka
+type KafkaBroker interface {
+	Publish(topic string, message []byte) error
+	Close() error
+	Consume(topics []string, msgChan chan *kafka.Message)
+}
+
+// KafkaBrokerImpl é a implementação concreta do KafkaBroker
+type KafkaBrokerImpl struct {
 	brokerURL string
 	writer    *kafka.Writer
 	mu        sync.Mutex
 	logger    *zap.Logger
 }
 
-func NewKafkaBroker(brokerURL string) *KafkaBroker {
-	return &KafkaBroker{
+func NewKafkaBroker(brokerURL string) KafkaBroker {
+	return &KafkaBrokerImpl{
 		brokerURL: brokerURL,
 		writer: kafka.NewWriter(kafka.WriterConfig{
 			Brokers:      []string{brokerURL},
@@ -32,7 +40,7 @@ func NewKafkaBroker(brokerURL string) *KafkaBroker {
 	}
 }
 
-func (k *KafkaBroker) Publish(topic string, message []byte) error {
+func (k *KafkaBrokerImpl) Publish(topic string, message []byte) error {
 	k.mu.Lock()
 	defer k.mu.Unlock()
 
@@ -57,11 +65,11 @@ func (k *KafkaBroker) Publish(topic string, message []byte) error {
 	return nil
 }
 
-func (k *KafkaBroker) Close() error {
+func (k *KafkaBrokerImpl) Close() error {
 	return k.writer.Close()
 }
 
-func (k *KafkaBroker) Consume(topics []string, msgChan chan *kafka.Message) {
+func (k *KafkaBrokerImpl) Consume(topics []string, msgChan chan *kafka.Message) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{k.brokerURL},
 		GroupID: "transaction-group",

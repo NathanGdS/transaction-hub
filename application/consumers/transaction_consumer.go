@@ -11,13 +11,13 @@ import (
 )
 
 type TransactionConsumer struct {
-	kafkaBroker *akafka.KafkaBroker
+	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
 }
 
 func NewTransactionConsumer(broker *akafka.KafkaBroker) *TransactionConsumer {
 	return &TransactionConsumer{
-		kafkaBroker: broker,
+		kafkaBroker: *broker,
 		logger:      logger.Log,
 	}
 }

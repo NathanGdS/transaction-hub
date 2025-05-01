@@ -9,6 +9,7 @@ import (
 )
 
 func TestTransaction_NewTransactionFromDto(t *testing.T) {
+	// Arrange
 	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
@@ -16,17 +17,21 @@ func TestTransaction_NewTransactionFromDto(t *testing.T) {
 		Description:   "Teste",
 	})
 
+	// Assert
 	assert.Empty(t, err)
 	assert.NotNil(t, transaction)
 }
 
 func TestTransaction_Validate_InvalidAmount(t *testing.T) {
+	// Arrange
 	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        0,
 		PaymentMethod: "PIX",
 		CurrencyCode:  "BRL",
 		Description:   "Teste",
 	})
+
+	// Assert
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
@@ -34,6 +39,7 @@ func TestTransaction_Validate_InvalidAmount(t *testing.T) {
 }
 
 func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
+	// Arrange
 	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "INVALID",
@@ -41,6 +47,7 @@ func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
 		Description:   "Teste",
 	})
 
+	// Assert
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
@@ -48,6 +55,7 @@ func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
 }
 
 func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
+	// Arrange
 	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
@@ -55,6 +63,7 @@ func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
 		Description:   "Teste",
 	})
 
+	// Assert
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
@@ -62,6 +71,7 @@ func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
 }
 
 func TestTransaction_Validate_InvalidDescription(t *testing.T) {
+	// Arrange
 	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
@@ -69,6 +79,7 @@ func TestTransaction_Validate_InvalidDescription(t *testing.T) {
 		Description:   "",
 	})
 
+	// Assert
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 

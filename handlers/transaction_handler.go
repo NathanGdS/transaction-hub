@@ -30,7 +30,7 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 		h.logger.Error("erro ao validar JSON",
 			zap.Error(err),
 		)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": []string{err.Error()}})
 		return
 	}
 
@@ -39,7 +39,13 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 		h.logger.Error("erro ao criar transação",
 			zap.Any("errors", errs),
 		)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errs})
+
+		errorMessages := make([]string, len(errs))
+		for i, err := range errs {
+			errorMessages[i] = err.Error()
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
 		return
 	}
 

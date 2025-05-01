@@ -19,7 +19,7 @@ func main() {
 	kafkaBroker := akafka.NewKafkaBroker("host.docker.internal:9094")
 	defer kafkaBroker.Close()
 
-	transactionConsumer := consumers.NewTransactionConsumer(kafkaBroker)
+	transactionConsumer := consumers.NewTransactionConsumer(&kafkaBroker)
 	go transactionConsumer.Start()
 
 	// Configs Gin

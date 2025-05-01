@@ -11,11 +11,11 @@ import (
 )
 
 type TransactionService struct {
-	kafkaBroker *akafka.KafkaBroker
+	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
 }
 
-func NewTransactionService(kafkaBroker *akafka.KafkaBroker) *TransactionService {
+func NewTransactionService(kafkaBroker akafka.KafkaBroker) *TransactionService {
 	return &TransactionService{kafkaBroker: kafkaBroker, logger: logger.Log}
 }
 

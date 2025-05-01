@@ -5,10 +5,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/NathanGdS/cali-challenge/application/consumers"
+	"github.com/NathanGdS/cali-challenge/application/services"
 	"github.com/NathanGdS/cali-challenge/handlers"
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/consumers"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/infra/akafka"
+	"github.com/NathanGdS/cali-challenge/infra/logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -24,7 +25,8 @@ func main() {
 	// Configs Gin
 	router := gin.Default()
 
-	transactionHandler := handlers.NewTransactionHandler(kafkaBroker)
+	transactionService := services.NewTransactionService(kafkaBroker)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
 
 	// Graceful shutdown config

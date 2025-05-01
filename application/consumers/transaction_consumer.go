@@ -3,9 +3,9 @@ package consumers
 import (
 	"encoding/json"
 
-	"github.com/NathanGdS/cali-challenge/models"
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/domain"
+	"github.com/NathanGdS/cali-challenge/infra/akafka"
+	"github.com/NathanGdS/cali-challenge/infra/logger"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -36,7 +36,7 @@ func (c *TransactionConsumer) processMessage(msg *kafka.Message) {
 		zap.String("message", string(msg.Value)),
 	)
 
-	var transaction models.Transaction
+	var transaction domain.Transaction
 	err := json.Unmarshal(msg.Value, &transaction)
 	if err != nil {
 		c.logger.Error("erro ao converter para JSON",

@@ -1,10 +1,10 @@
-package models_test
+package domain_test
 
 import (
 	"testing"
 
-	"github.com/NathanGdS/cali-challenge/dto"
-	"github.com/NathanGdS/cali-challenge/models"
+	"github.com/NathanGdS/cali-challenge/domain"
+	"github.com/NathanGdS/cali-challenge/domain/dto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +30,7 @@ func TestTransaction_Validate_InvalidAmount(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{models.ErrorInvalidAmount})
+	assert.Equal(t, err, []error{domain.ErrorInvalidAmount})
 }
 
 func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
@@ -44,7 +44,7 @@ func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{models.ErrorInvalidPaymentMethod})
+	assert.Equal(t, err, []error{domain.ErrorInvalidPaymentMethod})
 }
 
 func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
@@ -58,7 +58,7 @@ func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{models.ErrorInvalidCurrencyCode})
+	assert.Equal(t, err, []error{domain.ErrorInvalidCurrencyCode})
 }
 
 func TestTransaction_Validate_InvalidDescription(t *testing.T) {
@@ -72,5 +72,5 @@ func TestTransaction_Validate_InvalidDescription(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{models.ErrorInvalidDescription})
+	assert.Equal(t, err, []error{domain.ErrorInvalidDescription})
 }

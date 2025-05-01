@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/infra/logger"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )

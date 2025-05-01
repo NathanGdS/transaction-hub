@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,7 +8,9 @@ import (
 	"github.com/NathanGdS/cali-challenge/handlers"
 	"github.com/NathanGdS/cali-challenge/pkg/akafka"
 	"github.com/NathanGdS/cali-challenge/pkg/consumers"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -32,10 +33,12 @@ func main() {
 
 	go func() {
 		if err := router.Run(":8080"); err != nil {
-			log.Fatalf("Erro ao iniciar o servidor: %v", err)
+			logger.Log.Fatal("erro ao iniciar o servidor",
+				zap.Error(err),
+			)
 		}
 	}()
 
 	<-quit
-	log.Println("Encerrando o servidor...")
+	logger.Log.Info("encerrando o servidor...")
 }

@@ -2,21 +2,23 @@ package consumers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 
 	"github.com/NathanGdS/cali-challenge/models"
-	akafka "github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
 	"github.com/segmentio/kafka-go"
+	"go.uber.org/zap"
 )
 
 type TransactionConsumer struct {
 	kafkaBroker *akafka.KafkaBroker
+	logger      *zap.Logger
 }
 
 func NewTransactionConsumer(broker *akafka.KafkaBroker) *TransactionConsumer {
 	return &TransactionConsumer{
 		kafkaBroker: broker,
+		logger:      logger.Log,
 	}
 }
 
@@ -30,20 +32,28 @@ func (c *TransactionConsumer) Start() {
 }
 
 func (c *TransactionConsumer) processMessage(msg *kafka.Message) {
-	fmt.Printf("Consumindo mensagem: %s\n", string(msg.Value))
+	c.logger.Info("consumindo mensagem",
+		zap.String("message", string(msg.Value)),
+	)
 
 	var transactionDto models.TransactionRequestDto
 	err := json.Unmarshal(msg.Value, &transactionDto)
 	if err != nil {
-		log.Printf("Erro ao converter para JSON: %v", err)
+		c.logger.Error("erro ao converter para JSON",
+			zap.Error(err),
+		)
 		return
 	}
 
 	transaction, errs := models.TransactionFromDto(&transactionDto)
 	if len(errs) > 0 {
-		log.Printf("Erro ao converter DTO para Transaction: %v", errs)
+		c.logger.Error("erro ao converter DTO para Transaction",
+			zap.Any("errors", errs),
+		)
 		return
 	}
 
-	fmt.Printf("Transação recebida: %+v\n", transaction)
+	c.logger.Info("transação recebida",
+		zap.Any("transaction", transaction),
+	)
 }

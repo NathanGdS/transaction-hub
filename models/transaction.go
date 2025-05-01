@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"math"
 
@@ -19,6 +20,12 @@ const (
 	PaymentMethodCreditCard = "CREDIT_CARD"
 )
 
+const (
+	TransactionPending    = "PENDING"
+	TransactionProcessing = "PROCESSING"
+	TransactionFinished   = "FINISHED"
+)
+
 type TransactionRequestDto struct {
 	Amount        float64 `json:"amount" validate:"required,min=0"`
 	PaymentMethod string  `json:"paymentMethod" validate:"required,oneof=PIX CREDIT_CARD"`
@@ -32,6 +39,7 @@ type Transaction struct {
 	PaymentMethod string  `json:"paymentMethod"`
 	CurrencyCode  string  `json:"currencyCode"`
 	Description   string  `json:"description"`
+	Status        string  `json:"status"`
 }
 
 type TransactionResponseDto struct {
@@ -70,6 +78,7 @@ func NewTransaction(amount float64, paymentMethod string, currencyCode string, d
 		PaymentMethod: paymentMethod,
 		CurrencyCode:  currencyCode,
 		Description:   description,
+		Status:        TransactionPending,
 	}
 	err := transaction.Validate()
 	if err != nil {
@@ -86,4 +95,8 @@ func TransactionFromDto(dto *TransactionRequestDto) (*Transaction, []error) {
 	}
 
 	return transaction, nil
+}
+
+func (t *Transaction) ToJson() ([]byte, error) {
+	return json.Marshal(t)
 }

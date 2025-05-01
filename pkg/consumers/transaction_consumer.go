@@ -36,19 +36,11 @@ func (c *TransactionConsumer) processMessage(msg *kafka.Message) {
 		zap.String("message", string(msg.Value)),
 	)
 
-	var transactionDto models.TransactionRequestDto
-	err := json.Unmarshal(msg.Value, &transactionDto)
+	var transaction models.Transaction
+	err := json.Unmarshal(msg.Value, &transaction)
 	if err != nil {
 		c.logger.Error("erro ao converter para JSON",
 			zap.Error(err),
-		)
-		return
-	}
-
-	transaction, errs := models.TransactionFromDto(&transactionDto)
-	if len(errs) > 0 {
-		c.logger.Error("erro ao converter DTO para Transaction",
-			zap.Any("errors", errs),
 		)
 		return
 	}

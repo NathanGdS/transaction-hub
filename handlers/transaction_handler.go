@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/NathanGdS/cali-challenge/models"
@@ -35,9 +34,18 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	jsonData, err := json.Marshal(transactionDto)
+	transaction, errs := models.NewTransaction(transactionDto.Amount, transactionDto.PaymentMethod, transactionDto.CurrencyCode, transactionDto.Description)
+	if len(errs) > 0 {
+		h.logger.Error("erro ao criar transação",
+			zap.Any("errors", errs),
+		)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar a transação"})
+		return
+	}
+
+	jsonData, err := transaction.ToJson()
 	if err != nil {
-		h.logger.Error("erro ao converter para JSON",
+		h.logger.Error("erro ao converter transação para JSON",
 			zap.Error(err),
 		)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar a transação"})
@@ -55,5 +63,10 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 	h.logger.Info("transação publicada com sucesso",
 		zap.Any("transaction", transactionDto),
 	)
-	c.Status(http.StatusCreated)
+
+	response := &models.TransactionResponseDto{
+		ID: transaction.ID,
+	}
+
+	c.JSON(http.StatusCreated, response)
 }

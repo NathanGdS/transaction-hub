@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/NathanGdS/cali-challenge/pkg/logger"
 	"github.com/segmentio/kafka-go"
@@ -65,6 +66,7 @@ func (k *KafkaBroker) Consume(topics []string, msgChan chan *kafka.Message) {
 		Brokers: []string{k.brokerURL},
 		GroupID: "transaction-group",
 		Topic:   topics[0],
+		MaxWait: 1 * time.Second,
 	})
 
 	for {

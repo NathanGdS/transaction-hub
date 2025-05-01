@@ -26,13 +26,6 @@ const (
 	TransactionFinished   = "FINISHED"
 )
 
-type TransactionRequestDto struct {
-	Amount        float64 `json:"amount" validate:"required,min=0"`
-	PaymentMethod string  `json:"paymentMethod" validate:"required,oneof=PIX CREDIT_CARD"`
-	CurrencyCode  string  `json:"currencyCode" validate:"required,oneof=BRL USD"`
-	Description   string  `json:"description" validate:"required"`
-}
-
 type Transaction struct {
 	ID            string  `json:"id"`
 	Amount        float64 `json:"amount"`
@@ -40,10 +33,6 @@ type Transaction struct {
 	CurrencyCode  string  `json:"currencyCode"`
 	Description   string  `json:"description"`
 	Status        string  `json:"status"`
-}
-
-type TransactionResponseDto struct {
-	ID string `json:"id"`
 }
 
 func (t *Transaction) Validate() []error {
@@ -81,15 +70,6 @@ func NewTransaction(amount float64, paymentMethod string, currencyCode string, d
 		Status:        TransactionPending,
 	}
 	err := transaction.Validate()
-	if err != nil {
-		return nil, err
-	}
-
-	return transaction, nil
-}
-
-func TransactionFromDto(dto *TransactionRequestDto) (*Transaction, []error) {
-	transaction, err := NewTransaction(dto.Amount, dto.PaymentMethod, dto.CurrencyCode, dto.Description)
 	if err != nil {
 		return nil, err
 	}

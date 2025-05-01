@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/NathanGdS/cali-challenge/dto"
 	"github.com/NathanGdS/cali-challenge/models"
 	"github.com/NathanGdS/cali-challenge/pkg/akafka"
 	"github.com/NathanGdS/cali-challenge/pkg/logger"
@@ -25,7 +26,7 @@ func NewTransactionHandler(broker *akafka.KafkaBroker) *TransactionHandler {
 func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 	h.logger.Info("Solicitação recebida para criar uma transação")
 
-	var transactionDto models.TransactionRequestDto
+	var transactionDto dto.TransactionRequestDto
 	if err := c.ShouldBindJSON(&transactionDto); err != nil {
 		h.logger.Error("erro ao validar JSON",
 			zap.Error(err),
@@ -64,9 +65,7 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 		zap.Any("transaction", transactionDto),
 	)
 
-	response := &models.TransactionResponseDto{
-		ID: transaction.ID,
-	}
+	response := dto.FromTransaction(transaction)
 
 	c.JSON(http.StatusCreated, response)
 }

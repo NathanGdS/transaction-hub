@@ -1,13 +1,15 @@
-package models
+package models_test
 
 import (
 	"testing"
 
+	"github.com/NathanGdS/cali-challenge/dto"
+	"github.com/NathanGdS/cali-challenge/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTransaction_NewTransactionFromDto(t *testing.T) {
-	transaction, err := TransactionFromDto(&TransactionRequestDto{
+	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
 		CurrencyCode:  "BRL",
@@ -16,11 +18,10 @@ func TestTransaction_NewTransactionFromDto(t *testing.T) {
 
 	assert.Empty(t, err)
 	assert.NotNil(t, transaction)
-
 }
 
 func TestTransaction_Validate_InvalidAmount(t *testing.T) {
-	transaction, err := TransactionFromDto(&TransactionRequestDto{
+	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        0,
 		PaymentMethod: "PIX",
 		CurrencyCode:  "BRL",
@@ -29,11 +30,11 @@ func TestTransaction_Validate_InvalidAmount(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{ErrorInvalidAmount})
+	assert.Equal(t, err, []error{models.ErrorInvalidAmount})
 }
 
 func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
-	transaction, err := TransactionFromDto(&TransactionRequestDto{
+	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "INVALID",
 		CurrencyCode:  "BRL",
@@ -43,11 +44,11 @@ func TestTransaction_Validate_InvalidPaymentMethod(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{ErrorInvalidPaymentMethod})
+	assert.Equal(t, err, []error{models.ErrorInvalidPaymentMethod})
 }
 
 func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
-	transaction, err := TransactionFromDto(&TransactionRequestDto{
+	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
 		CurrencyCode:  "INVALID",
@@ -57,11 +58,11 @@ func TestTransaction_Validate_InvalidCurrencyCode(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{ErrorInvalidCurrencyCode})
+	assert.Equal(t, err, []error{models.ErrorInvalidCurrencyCode})
 }
 
 func TestTransaction_Validate_InvalidDescription(t *testing.T) {
-	transaction, err := TransactionFromDto(&TransactionRequestDto{
+	transaction, err := dto.ToTransaction(&dto.TransactionRequestDto{
 		Amount:        100,
 		PaymentMethod: "PIX",
 		CurrencyCode:  "BRL",
@@ -71,5 +72,5 @@ func TestTransaction_Validate_InvalidDescription(t *testing.T) {
 	assert.NotEmpty(t, err)
 	assert.Nil(t, transaction)
 
-	assert.Equal(t, err, []error{ErrorInvalidDescription})
+	assert.Equal(t, err, []error{models.ErrorInvalidDescription})
 }

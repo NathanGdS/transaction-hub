@@ -1,0 +1,1 @@
+npx autocannon -c 20 -d 10 -p 10 -m POST -H "Content-Type: application/json" -i request.json http://localhost:8080/transaction

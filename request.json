@@ -1,0 +1,6 @@
+{
+  "amount": 100,
+  "paymentMethod": "PIX",
+  "currencyCode": "BRL",
+  "description": "Compra de teste"
+}

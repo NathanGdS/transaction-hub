@@ -75,10 +75,11 @@ func (k *KafkaBrokerImpl) Close() error {
 
 func (k *KafkaBrokerImpl) Consume(topics []string, msgChan chan *kafka.Message) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{k.brokerURL},
-		GroupID: "transaction-group",
-		Topic:   topics[0],
-		MaxWait: 1 * time.Second,
+		Brokers:           []string{k.brokerURL},
+		GroupID:           "transaction-group",
+		Topic:             topics[0],
+		MaxWait:           1 * time.Second,
+		HeartbeatInterval: 5 * time.Second,
 	})
 
 	for {

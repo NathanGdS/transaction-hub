@@ -21,13 +21,7 @@ func main() {
 	kafkaBroker := akafka.NewKafkaBroker("host.docker.internal:9094")
 	defer kafkaBroker.Close()
 
-	kafkaBroker.CreateTopicsIfNotExists([]string{"process-transaction"})
-
-	transactionConsumer := consumers.NewTransactionConsumer(&kafkaBroker)
-	go transactionConsumer.Start()
-
-	// Configs Gin
-	router := gin.Default()
+	kafkaBroker.CreateTopicsIfNotExists([]string{"process-transaction", "transaction-process-return"})
 
 	db, err := database.NewPostgresConnection()
 	if err != nil {
@@ -35,10 +29,20 @@ func main() {
 			zap.Error(err),
 		)
 	}
-
 	database.RunMigrations(db)
 
-	transactionService := services.NewTransactionService(kafkaBroker, repository.NewTransactionRepositoryGorm(db))
+	txRepository := repository.NewTransactionRepositoryGorm(db)
+
+	transactionConsumer := consumers.NewTransactionConsumer(&kafkaBroker, txRepository)
+	go transactionConsumer.Start()
+
+	processTransactionConsumer := consumers.NewProcessTransactionConsumer(&kafkaBroker, txRepository)
+	go processTransactionConsumer.Start()
+
+	// Configs Gin
+	router := gin.Default()
+
+	transactionService := services.NewTransactionService(kafkaBroker, txRepository)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
 

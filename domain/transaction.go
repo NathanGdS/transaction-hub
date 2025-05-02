@@ -25,6 +25,7 @@ const (
 const (
 	TransactionPending  = "PENDING"
 	TransactionFinished = "FINISHED"
+	TransactionFailed   = "FAILED"
 )
 
 type Transaction struct {
@@ -34,6 +35,7 @@ type Transaction struct {
 	CurrencyCode  string         `json:"currencyCode" gorm:"type:varchar(3);not null"`
 	Description   string         `json:"description" gorm:"type:text;not null"`
 	Status        string         `json:"status" gorm:"type:varchar(20);not null"`
+	ErrorMessage  string         `json:"error,omitempty" gorm:"type:text"`
 	CreatedAt     time.Time      `json:"createdAt" gorm:"type:timestamp;not null"`
 	UpdatedAt     time.Time      `json:"updatedAt" gorm:"type:timestamp;not null"`
 	DeletedAt     gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
@@ -79,6 +81,15 @@ func NewTransaction(amount float64, paymentMethod string, currencyCode string, d
 	}
 
 	return transaction, nil
+}
+
+func (t *Transaction) TransactionProcessed() {
+	t.Status = TransactionFinished
+}
+
+func (t *Transaction) ErrorProcessingTransaction(errorMessage string) {
+	t.ErrorMessage = errorMessage
+	t.Status = TransactionFailed
 }
 
 func (t *Transaction) ToJson() ([]byte, error) {

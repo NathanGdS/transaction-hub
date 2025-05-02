@@ -1,9 +1,12 @@
 package consumers
 
 import (
+	"context"
 	"encoding/json"
 
+	"github.com/NathanGdS/cali-challenge/application/services"
 	"github.com/NathanGdS/cali-challenge/domain"
+	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
 	"github.com/NathanGdS/cali-challenge/infra/akafka"
 	"github.com/NathanGdS/cali-challenge/infra/logger"
 	"github.com/segmentio/kafka-go"
@@ -13,12 +16,14 @@ import (
 type TransactionConsumer struct {
 	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
+	service     *services.TransactionService
 }
 
-func NewTransactionConsumer(broker *akafka.KafkaBroker) *TransactionConsumer {
+func NewTransactionConsumer(broker *akafka.KafkaBroker, repository dRepo.TransactionRepository) *TransactionConsumer {
 	return &TransactionConsumer{
 		kafkaBroker: *broker,
 		logger:      logger.Log,
+		service:     services.NewTransactionService(*broker, repository),
 	}
 }
 
@@ -27,7 +32,7 @@ func (c *TransactionConsumer) Start() {
 	go c.kafkaBroker.Consume([]string{"process-transaction"}, msgChan)
 
 	for msg := range msgChan {
-		c.processMessage(msg)
+		go c.processMessage(msg)
 	}
 }
 
@@ -45,7 +50,5 @@ func (c *TransactionConsumer) processMessage(msg *kafka.Message) {
 		return
 	}
 
-	c.logger.Info("transação recebida",
-		zap.Any("transaction", transaction),
-	)
+	c.service.ProcessTransaction(context.Background(), &transaction)
 }

@@ -9,7 +9,9 @@ import (
 	"github.com/NathanGdS/cali-challenge/application/services"
 	"github.com/NathanGdS/cali-challenge/handlers"
 	"github.com/NathanGdS/cali-challenge/infra/akafka"
+	"github.com/NathanGdS/cali-challenge/infra/database"
 	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/infra/repository"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -25,7 +27,16 @@ func main() {
 	// Configs Gin
 	router := gin.Default()
 
-	transactionService := services.NewTransactionService(kafkaBroker)
+	db, err := database.NewPostgresConnection()
+	if err != nil {
+		logger.Log.Fatal("erro ao conectar ao banco de dados",
+			zap.Error(err),
+		)
+	}
+
+	database.RunMigrations(db)
+
+	transactionService := services.NewTransactionService(kafkaBroker, *repository.NewTransactionRepositoryGorm(db))
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
 

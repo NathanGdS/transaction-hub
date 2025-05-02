@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -27,12 +29,15 @@ const (
 )
 
 type Transaction struct {
-	ID            string  `json:"id"`
-	Amount        float64 `json:"amount"`
-	PaymentMethod string  `json:"paymentMethod"`
-	CurrencyCode  string  `json:"currencyCode"`
-	Description   string  `json:"description"`
-	Status        string  `json:"status"`
+	ID            string         `json:"id" gorm:"primaryKey;type:uuid"`
+	Amount        float64        `json:"amount" gorm:"type:decimal(10,2);not null"`
+	PaymentMethod string         `json:"paymentMethod" gorm:"type:varchar(20);not null"`
+	CurrencyCode  string         `json:"currencyCode" gorm:"type:varchar(3);not null"`
+	Description   string         `json:"description" gorm:"type:text;not null"`
+	Status        string         `json:"status" gorm:"type:varchar(20);not null"`
+	CreatedAt     time.Time      `json:"createdAt" gorm:"type:timestamp;not null"`
+	UpdatedAt     time.Time      `json:"updatedAt" gorm:"type:timestamp;not null"`
+	DeletedAt     gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
 }
 
 func (t *Transaction) Validate() []error {

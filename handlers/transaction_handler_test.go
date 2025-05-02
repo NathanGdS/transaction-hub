@@ -13,6 +13,7 @@ import (
 	"github.com/NathanGdS/cali-challenge/domain/dto"
 	"github.com/NathanGdS/cali-challenge/infra/akafka"
 	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/infra/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/assert"
@@ -47,10 +48,17 @@ func init() {
 	mockLogger = zap.NewNop()
 }
 
+// Mock repository
+var mockRepository *repository.TransactionRepositoryGorm
+
+func init() {
+	mockRepository = &repository.TransactionRepositoryGorm{}
+}
+
 func TestNewTransactionHandler(t *testing.T) {
 	// Arrange
 	mockKafka := new(MockKafkaBroker)
-	service := services.NewTransactionService(mockKafka)
+	service := services.NewTransactionService(mockKafka, *mockRepository)
 
 	// Act
 	handler := NewTransactionHandler(service)
@@ -69,7 +77,7 @@ func TestCreateTransaction(t *testing.T) {
 	t.Run("Should create a transaction with success", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka)
+		service := services.NewTransactionService(mockKafka, *mockRepository)
 		handler := NewTransactionHandler(service)
 
 		requestDto := dto.TransactionRequestDto{
@@ -104,7 +112,7 @@ func TestCreateTransaction(t *testing.T) {
 	t.Run("Should return error when the JSON is invalid", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka)
+		service := services.NewTransactionService(mockKafka, *mockRepository)
 		handler := NewTransactionHandler(service)
 
 		w := httptest.NewRecorder()
@@ -124,7 +132,7 @@ func TestCreateTransaction(t *testing.T) {
 	t.Run("Should return error when the Kafka fails", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka)
+		service := services.NewTransactionService(mockKafka, *mockRepository)
 		handler := NewTransactionHandler(service)
 
 		requestDto := dto.TransactionRequestDto{

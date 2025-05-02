@@ -36,7 +36,7 @@ func main() {
 
 	database.RunMigrations(db)
 
-	transactionService := services.NewTransactionService(kafkaBroker, *repository.NewTransactionRepositoryGorm(db))
+	transactionService := services.NewTransactionService(kafkaBroker, repository.NewTransactionRepositoryGorm(db))
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
 

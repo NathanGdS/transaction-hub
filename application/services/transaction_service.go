@@ -5,19 +5,19 @@ import (
 
 	"github.com/NathanGdS/cali-challenge/domain"
 	"github.com/NathanGdS/cali-challenge/domain/dto"
+	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
 	"github.com/NathanGdS/cali-challenge/infra/akafka"
 	"github.com/NathanGdS/cali-challenge/infra/logger"
-	"github.com/NathanGdS/cali-challenge/infra/repository"
 	"go.uber.org/zap"
 )
 
 type TransactionService struct {
 	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
-	repository  repository.TransactionRepositoryGorm
+	repository  dRepo.TransactionRepository
 }
 
-func NewTransactionService(kafkaBroker akafka.KafkaBroker, repository repository.TransactionRepositoryGorm) *TransactionService {
+func NewTransactionService(kafkaBroker akafka.KafkaBroker, repository dRepo.TransactionRepository) *TransactionService {
 	return &TransactionService{kafkaBroker: kafkaBroker, logger: logger.Log, repository: repository}
 }
 

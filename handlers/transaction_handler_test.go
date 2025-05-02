@@ -11,9 +11,9 @@ import (
 	"github.com/NathanGdS/cali-challenge/application/services"
 	"github.com/NathanGdS/cali-challenge/domain"
 	"github.com/NathanGdS/cali-challenge/domain/dto"
+	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
 	"github.com/NathanGdS/cali-challenge/infra/akafka"
 	"github.com/NathanGdS/cali-challenge/infra/logger"
-	"github.com/NathanGdS/cali-challenge/infra/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/assert"
@@ -39,7 +39,43 @@ func (m *MockKafkaBroker) Consume(topics []string, msgChan chan *kafka.Message) 
 	m.Called(topics, msgChan)
 }
 
+type MockTransactionRepository struct {
+	mock.Mock
+}
+
+func (m *MockTransactionRepository) Create(transaction *domain.Transaction) error {
+	args := m.Called(transaction)
+	return args.Error(0)
+}
+
+func (m *MockTransactionRepository) FindByID(id string) (*domain.Transaction, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.Transaction), args.Error(1)
+}
+
+func (m *MockTransactionRepository) Update(transaction *domain.Transaction) error {
+	args := m.Called(transaction)
+	return args.Error(0)
+}
+
+func (m *MockTransactionRepository) Delete(id string) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *MockTransactionRepository) FindAll() ([]*domain.Transaction, error) {
+	args := m.Called()
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.Transaction), args.Error(1)
+}
+
 var _ akafka.KafkaBroker = (*MockKafkaBroker)(nil)
+var _ dRepo.TransactionRepository = (*MockTransactionRepository)(nil)
 
 // Mock logger
 var mockLogger *zap.Logger
@@ -48,17 +84,11 @@ func init() {
 	mockLogger = zap.NewNop()
 }
 
-// Mock repository
-var mockRepository *repository.TransactionRepositoryGorm
-
-func init() {
-	mockRepository = &repository.TransactionRepositoryGorm{}
-}
-
 func TestNewTransactionHandler(t *testing.T) {
 	// Arrange
 	mockKafka := new(MockKafkaBroker)
-	service := services.NewTransactionService(mockKafka, *mockRepository)
+	mockRepo := new(MockTransactionRepository)
+	service := services.NewTransactionService(mockKafka, mockRepo)
 
 	// Act
 	handler := NewTransactionHandler(service)
@@ -77,7 +107,8 @@ func TestCreateTransaction(t *testing.T) {
 	t.Run("Should create a transaction with success", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka, *mockRepository)
+		mockRepo := new(MockTransactionRepository)
+		service := services.NewTransactionService(mockKafka, mockRepo)
 		handler := NewTransactionHandler(service)
 
 		requestDto := dto.TransactionRequestDto{
@@ -87,6 +118,7 @@ func TestCreateTransaction(t *testing.T) {
 			Description:   "Test transaction",
 		}
 
+		mockRepo.On("Create", mock.AnythingOfType("*domain.Transaction")).Return(nil)
 		mockKafka.On("Publish", "test", mock.Anything).Return(nil)
 
 		w := httptest.NewRecorder()
@@ -107,12 +139,14 @@ func TestCreateTransaction(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, response.ID)
 		mockKafka.AssertExpectations(t)
+		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Should return error when the JSON is invalid", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka, *mockRepository)
+		mockRepo := new(MockTransactionRepository)
+		service := services.NewTransactionService(mockKafka, mockRepo)
 		handler := NewTransactionHandler(service)
 
 		w := httptest.NewRecorder()
@@ -132,7 +166,8 @@ func TestCreateTransaction(t *testing.T) {
 	t.Run("Should return error when the Kafka fails", func(t *testing.T) {
 		// Arrange
 		mockKafka := new(MockKafkaBroker)
-		service := services.NewTransactionService(mockKafka, *mockRepository)
+		mockRepo := new(MockTransactionRepository)
+		service := services.NewTransactionService(mockKafka, mockRepo)
 		handler := NewTransactionHandler(service)
 
 		requestDto := dto.TransactionRequestDto{
@@ -142,6 +177,7 @@ func TestCreateTransaction(t *testing.T) {
 			Description:   "Test transaction",
 		}
 
+		mockRepo.On("Create", mock.AnythingOfType("*domain.Transaction")).Return(nil)
 		mockKafka.On("Publish", "test", mock.Anything).Return(errors.New("erro ao publicar no kafka"))
 
 		w := httptest.NewRecorder()
@@ -157,5 +193,6 @@ func TestCreateTransaction(t *testing.T) {
 		// Assert
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		mockKafka.AssertExpectations(t)
+		mockRepo.AssertExpectations(t)
 	})
 }

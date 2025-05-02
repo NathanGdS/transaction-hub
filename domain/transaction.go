@@ -23,9 +23,8 @@ const (
 )
 
 const (
-	TransactionPending    = "PENDING"
-	TransactionProcessing = "PROCESSING"
-	TransactionFinished   = "FINISHED"
+	TransactionPending  = "PENDING"
+	TransactionFinished = "FINISHED"
 )
 
 type Transaction struct {

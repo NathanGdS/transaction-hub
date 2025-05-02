@@ -3,6 +3,9 @@ package akafka
 import (
 	"context"
 	"fmt"
+	"net"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -16,6 +19,7 @@ type KafkaBroker interface {
 	Publish(topic string, message []byte) error
 	Close() error
 	Consume(topics []string, msgChan chan *kafka.Message)
+	CreateTopicsIfNotExists(topics []string) error
 }
 
 // KafkaBrokerImpl é a implementação concreta do KafkaBroker
@@ -31,7 +35,7 @@ func NewKafkaBroker(brokerURL string) KafkaBroker {
 		brokerURL: brokerURL,
 		writer: kafka.NewWriter(kafka.WriterConfig{
 			Brokers:      []string{brokerURL},
-			Async:        true,
+			Async:        false,
 			Balancer:     &kafka.LeastBytes{},
 			BatchSize:    1,
 			BatchTimeout: 0,
@@ -88,4 +92,43 @@ func (k *KafkaBrokerImpl) Consume(topics []string, msgChan chan *kafka.Message) 
 		}
 		msgChan <- &msg
 	}
+}
+
+func (k *KafkaBrokerImpl) CreateTopicsIfNotExists(topics []string) error {
+	conn, err := kafka.Dial("tcp", k.brokerURL)
+	if err != nil {
+		return fmt.Errorf("erro ao conectar com kafka: %v", err)
+	}
+	defer conn.Close()
+
+	controller, err := conn.Controller()
+	if err != nil {
+		return fmt.Errorf("erro ao obter controller: %v", err)
+	}
+
+	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		return fmt.Errorf("erro ao conectar com controller: %v", err)
+	}
+	defer controllerConn.Close()
+
+	for _, topic := range topics {
+		topicConfigs := []kafka.TopicConfig{
+			{
+				Topic:             topic,
+				NumPartitions:     1,
+				ReplicationFactor: 1,
+			},
+		}
+
+		err = controllerConn.CreateTopics(topicConfigs...)
+		if err != nil && !strings.Contains(err.Error(), "already exists") {
+			// ignore error if topic already exists
+			k.logger.Info("topico já existe",
+				zap.String("topic", topic),
+			)
+		}
+	}
+
+	return nil
 }

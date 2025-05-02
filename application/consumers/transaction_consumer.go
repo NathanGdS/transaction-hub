@@ -24,7 +24,7 @@ func NewTransactionConsumer(broker *akafka.KafkaBroker) *TransactionConsumer {
 
 func (c *TransactionConsumer) Start() {
 	msgChan := make(chan *kafka.Message)
-	go c.kafkaBroker.Consume([]string{"test"}, msgChan)
+	go c.kafkaBroker.Consume([]string{"process-transaction"}, msgChan)
 
 	for msg := range msgChan {
 		c.processMessage(msg)

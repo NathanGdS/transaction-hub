@@ -21,6 +21,8 @@ func main() {
 	kafkaBroker := akafka.NewKafkaBroker("host.docker.internal:9094")
 	defer kafkaBroker.Close()
 
+	kafkaBroker.CreateTopicsIfNotExists([]string{"process-transaction"})
+
 	transactionConsumer := consumers.NewTransactionConsumer(&kafkaBroker)
 	go transactionConsumer.Start()
 

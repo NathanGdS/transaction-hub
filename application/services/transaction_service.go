@@ -37,7 +37,7 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, transactionD
 		return domain.Transaction{}, []error{err}
 	}
 
-	if err := s.kafkaBroker.Publish("test", jsonData); err != nil {
+	if err := s.kafkaBroker.Publish("process-transaction", jsonData); err != nil {
 		s.logger.Error("erro ao publicar no Kafka",
 			zap.Error(err),
 		)

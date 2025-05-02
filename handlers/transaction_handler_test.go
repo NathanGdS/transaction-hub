@@ -39,6 +39,11 @@ func (m *MockKafkaBroker) Consume(topics []string, msgChan chan *kafka.Message) 
 	m.Called(topics, msgChan)
 }
 
+func (m *MockKafkaBroker) CreateTopicsIfNotExists(topics []string) error {
+	args := m.Called(topics)
+	return args.Error(0)
+}
+
 type MockTransactionRepository struct {
 	mock.Mock
 }
@@ -119,7 +124,7 @@ func TestCreateTransaction(t *testing.T) {
 		}
 
 		mockRepo.On("Create", mock.AnythingOfType("*domain.Transaction")).Return(nil)
-		mockKafka.On("Publish", "test", mock.Anything).Return(nil)
+		mockKafka.On("Publish", "process-transaction", mock.Anything).Return(nil)
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
@@ -178,7 +183,7 @@ func TestCreateTransaction(t *testing.T) {
 		}
 
 		mockRepo.On("Create", mock.AnythingOfType("*domain.Transaction")).Return(nil)
-		mockKafka.On("Publish", "test", mock.Anything).Return(errors.New("erro ao publicar no kafka"))
+		mockKafka.On("Publish", "process-transaction", mock.Anything).Return(errors.New("erro ao publicar no kafka"))
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)

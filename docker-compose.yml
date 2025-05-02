@@ -1,5 +1,16 @@
 version: "3"
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cali
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     environment:
@@ -34,3 +45,6 @@ services:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: "kafka:9092"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       PORT: 9021
+
+volumes:
+  postgres_data:

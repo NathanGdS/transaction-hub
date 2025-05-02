@@ -1,6 +1,6 @@
 package dto
 
-import tx "github.com/NathanGdS/cali-challenge/domain"
+import tx "github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
 
 type TransactionRequestDto struct {
 	Amount        float64 `json:"amount" validate:"required,min=0"`

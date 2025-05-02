@@ -30,6 +30,8 @@ const (
 )
 
 type Transaction struct {
+	Mu sync.Mutex `gorm:"-" json:"-"`
+
 	ID            string         `json:"id" gorm:"primaryKey;type:uuid"`
 	Amount        float64        `json:"amount" gorm:"type:decimal(10,2);not null"`
 	PaymentMethod string         `json:"paymentMethod" gorm:"type:varchar(20);not null"`
@@ -41,7 +43,7 @@ type Transaction struct {
 	UpdatedAt     time.Time      `json:"updatedAt" gorm:"type:timestamp;not null"`
 	DeletedAt     gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
 
-	Mu sync.Mutex `gorm:"-" json:"-"`
+	// Mu sync.Mutex `gorm:"-" json:"-"`
 }
 
 func (t *Transaction) Validate() []error {

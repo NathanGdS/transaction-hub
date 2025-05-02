@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/NathanGdS/cali-challenge/domain"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
 	"gorm.io/gorm"
 )
 

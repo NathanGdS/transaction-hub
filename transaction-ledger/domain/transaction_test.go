@@ -3,8 +3,8 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/NathanGdS/cali-challenge/domain"
-	"github.com/NathanGdS/cali-challenge/domain/dto"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
 	"github.com/stretchr/testify/assert"
 )
 

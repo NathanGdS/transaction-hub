@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -35,10 +35,10 @@ func NewKafkaBroker(brokerURL string) KafkaBroker {
 		brokerURL: brokerURL,
 		writer: kafka.NewWriter(kafka.WriterConfig{
 			Brokers:      []string{brokerURL},
-			Async:        false,
+			Async:        true,
 			Balancer:     &kafka.LeastBytes{},
-			BatchSize:    1,
-			BatchTimeout: 0,
+			BatchSize:    100,
+			BatchTimeout: 5,
 		}),
 		logger: logger.Log,
 	}

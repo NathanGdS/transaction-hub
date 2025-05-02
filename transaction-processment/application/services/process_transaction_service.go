@@ -7,55 +7,23 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/NathanGdS/cali-challenge/domain"
-	"github.com/NathanGdS/cali-challenge/domain/dto"
-	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
-	"github.com/NathanGdS/cali-challenge/infra/akafka"
-	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
 	"go.uber.org/zap"
 )
 
-type TransactionService struct {
+type ProcessTransactionService struct {
 	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
-	repository  dRepo.TransactionRepository
 }
 
-func NewTransactionService(kafkaBroker akafka.KafkaBroker, repository dRepo.TransactionRepository) *TransactionService {
-	return &TransactionService{kafkaBroker: kafkaBroker, logger: logger.Log, repository: repository}
+func NewProcessTransactionService(kafkaBroker akafka.KafkaBroker) *ProcessTransactionService {
+	return &ProcessTransactionService{kafkaBroker: kafkaBroker, logger: logger.Log}
 }
 
-func (s *TransactionService) CreateTransaction(ctx context.Context, transactionDto *dto.TransactionRequestDto) (domain.Transaction, []error) {
-	transaction, errs := domain.NewTransaction(transactionDto.Amount, transactionDto.PaymentMethod, transactionDto.CurrencyCode, transactionDto.Description)
-	if len(errs) > 0 {
-		return domain.Transaction{}, errs
-	}
-
-	jsonData, err := transaction.ToJson()
-	if err != nil {
-		return domain.Transaction{}, []error{err}
-	}
-
-	err = s.repository.Create(transaction)
-	if err != nil {
-		return domain.Transaction{}, []error{err}
-	}
-
-	if err := s.kafkaBroker.Publish("process-transaction", jsonData); err != nil {
-		s.logger.Error("erro ao publicar no Kafka",
-			zap.Error(err),
-		)
-		return domain.Transaction{}, []error{err}
-	}
-
-	s.logger.Info("transação publicada com sucesso",
-		zap.Any("transaction", transactionDto),
-	)
-
-	return *transaction, nil
-}
-
-func (s *TransactionService) ProcessTransaction(ctx context.Context, transaction *domain.Transaction) error {
+func (s *ProcessTransactionService) ProcessTransaction(ctx context.Context, transaction *domain.Transaction) error {
 	s.logger.Info("processando transação",
 		zap.Any("transaction", transaction),
 	)
@@ -128,7 +96,7 @@ func (s *TransactionService) ProcessTransaction(ctx context.Context, transaction
 	}
 }
 
-func (s *TransactionService) publishResult(transaction *domain.Transaction, status string, errorMsg string) error {
+func (s *ProcessTransactionService) publishResult(transaction *domain.Transaction, status string, errorMsg string) error {
 	processTransactionDto := dto.ProcessTransactionDto{
 		TransactionID: transaction.ID,
 		Status:        status,
@@ -151,20 +119,4 @@ func (s *TransactionService) publishResult(transaction *domain.Transaction, stat
 	}
 
 	return nil
-}
-
-func (s *TransactionService) UpdateTransaction(ctx context.Context, transaction *domain.Transaction) error {
-	defer s.logger.Info("transação atualizada",
-		zap.Any("transaction", transaction),
-	)
-
-	transaction.Mu.Lock()
-	err := s.repository.Update(transaction)
-	transaction.Mu.Unlock()
-
-	return err
-}
-
-func (s *TransactionService) FindByID(ctx context.Context, id string) (*domain.Transaction, error) {
-	return s.repository.FindByID(id)
 }

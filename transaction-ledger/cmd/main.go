@@ -5,13 +5,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/NathanGdS/cali-challenge/application/consumers"
-	"github.com/NathanGdS/cali-challenge/application/services"
-	"github.com/NathanGdS/cali-challenge/handlers"
-	"github.com/NathanGdS/cali-challenge/infra/akafka"
-	"github.com/NathanGdS/cali-challenge/infra/database"
-	"github.com/NathanGdS/cali-challenge/infra/logger"
-	"github.com/NathanGdS/cali-challenge/infra/repository"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/consumers"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/handlers"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/infra/database"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/infra/repository"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -32,9 +32,6 @@ func main() {
 	database.RunMigrations(db)
 
 	txRepository := repository.NewTransactionRepositoryGorm(db)
-
-	transactionConsumer := consumers.NewTransactionConsumer(&kafkaBroker, txRepository)
-	go transactionConsumer.Start()
 
 	processTransactionConsumer := consumers.NewProcessTransactionConsumer(&kafkaBroker, txRepository)
 	go processTransactionConsumer.Start()

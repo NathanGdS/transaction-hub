@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/NathanGdS/cali-challenge/domain"
+import "github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
 
 type TransactionRepository interface {
 	Create(transaction *domain.Transaction) error

@@ -1,5 +1,8 @@
-run:
-	@go run cmd/main.go
+run-ledger:
+	@go run transaction-ledger/cmd/main.go
+
+run-processment:
+	@go run transaction-processment/cmd/main.go
 
 test:
 	@go test -v ./...

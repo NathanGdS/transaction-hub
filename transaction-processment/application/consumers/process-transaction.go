@@ -4,30 +4,29 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/NathanGdS/cali-challenge/application/services"
-	"github.com/NathanGdS/cali-challenge/domain"
-	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
-	"github.com/NathanGdS/cali-challenge/infra/akafka"
-	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+	"github.com/NathanGdS/cali-challenge/transaction-processment/application/services"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
 
-type TransactionConsumer struct {
+type ProcessTransactionConsumer struct {
 	kafkaBroker akafka.KafkaBroker
 	logger      *zap.Logger
-	service     *services.TransactionService
+	service     *services.ProcessTransactionService
 }
 
-func NewTransactionConsumer(broker *akafka.KafkaBroker, repository dRepo.TransactionRepository) *TransactionConsumer {
-	return &TransactionConsumer{
+func NewProcessTransactionConsumer(broker *akafka.KafkaBroker) *ProcessTransactionConsumer {
+	return &ProcessTransactionConsumer{
 		kafkaBroker: *broker,
 		logger:      logger.Log,
-		service:     services.NewTransactionService(*broker, repository),
+		service:     services.NewProcessTransactionService(*broker),
 	}
 }
 
-func (c *TransactionConsumer) Start() {
+func (c *ProcessTransactionConsumer) Start() {
 	msgChan := make(chan *kafka.Message)
 	go c.kafkaBroker.Consume([]string{"process-transaction"}, msgChan)
 
@@ -36,7 +35,7 @@ func (c *TransactionConsumer) Start() {
 	}
 }
 
-func (c *TransactionConsumer) processMessage(msg *kafka.Message) {
+func (c *ProcessTransactionConsumer) processMessage(msg *kafka.Message) {
 	c.logger.Info("consumindo mensagem",
 		zap.String("message", string(msg.Value)),
 	)

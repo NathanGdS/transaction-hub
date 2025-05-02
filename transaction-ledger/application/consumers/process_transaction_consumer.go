@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/NathanGdS/cali-challenge/application/services"
-	"github.com/NathanGdS/cali-challenge/domain/dto"
-	dRepo "github.com/NathanGdS/cali-challenge/domain/repository"
-	"github.com/NathanGdS/cali-challenge/infra/akafka"
-	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/pkg/akafka"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
+	dRepo "github.com/NathanGdS/cali-challenge/transaction-ledger/domain/repository"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -61,5 +61,5 @@ func (c *ProcessTransactionConsumer) processMessage(msg *kafka.Message) {
 	} else {
 		transaction.ErrorProcessingTransaction(processTransactionDto.ErrorMessage)
 	}
-	go c.service.UpdateTransaction(context.Background(), transaction)
+	c.service.UpdateTransaction(context.Background(), transaction)
 }

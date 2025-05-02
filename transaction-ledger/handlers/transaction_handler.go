@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/NathanGdS/cali-challenge/application/services"
-	"github.com/NathanGdS/cali-challenge/domain/dto"
-	"github.com/NathanGdS/cali-challenge/infra/logger"
+	"github.com/NathanGdS/cali-challenge/pkg/logger"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
+	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -23,14 +23,12 @@ func NewTransactionHandler(transactionService *services.TransactionService) *Tra
 }
 
 func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
-	h.logger.Info("Solicitação recebida para criar uma transação")
-
 	var transactionDto dto.TransactionRequestDto
 	if err := c.ShouldBindJSON(&transactionDto); err != nil {
 		h.logger.Error("erro ao validar JSON",
 			zap.Error(err),
 		)
-		c.JSON(http.StatusBadRequest, gin.H{"errors": []string{err.Error()}})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": []string{err.Error()}})
 		return
 	}
 
@@ -40,16 +38,15 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 			zap.Any("errors", errs),
 		)
 
-		errorMessages := make([]string, len(errs))
-		for i, err := range errs {
-			errorMessages[i] = err.Error()
+		// Pré-aloca o slice de erros
+		errorMessages := make([]string, 0, len(errs))
+		for _, err := range errs {
+			errorMessages = append(errorMessages, err.Error())
 		}
 
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
 		return
 	}
 
-	response := dto.FromTransaction(&transaction)
-
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusCreated, dto.FromTransaction(&transaction))
 }

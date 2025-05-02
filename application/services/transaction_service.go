@@ -154,10 +154,15 @@ func (s *TransactionService) publishResult(transaction *domain.Transaction, stat
 }
 
 func (s *TransactionService) UpdateTransaction(ctx context.Context, transaction *domain.Transaction) error {
-	s.logger.Info("transação atualizada",
+	defer s.logger.Info("transação atualizada",
 		zap.Any("transaction", transaction),
 	)
-	return s.repository.Update(transaction)
+
+	transaction.Mu.Lock()
+	err := s.repository.Update(transaction)
+	transaction.Mu.Unlock()
+
+	return err
 }
 
 func (s *TransactionService) FindByID(ctx context.Context, id string) (*domain.Transaction, error) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,6 +40,8 @@ type Transaction struct {
 	CreatedAt     time.Time      `json:"createdAt" gorm:"type:timestamp;not null"`
 	UpdatedAt     time.Time      `json:"updatedAt" gorm:"type:timestamp;not null"`
 	DeletedAt     gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
+
+	Mu sync.Mutex `gorm:"-" json:"-"`
 }
 
 func (t *Transaction) Validate() []error {

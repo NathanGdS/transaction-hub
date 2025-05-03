@@ -104,6 +104,8 @@ make run-processment
 - GET /transactions - Lists all transactions
 - GET /transaction/:ID - Gets a specific transaction
 
+Request examples can be found on ./request.http (Rest Client extention required to run on editor)
+
 ## Kafka Topics
 
 - `process-transactions` - Pending transactions for processing

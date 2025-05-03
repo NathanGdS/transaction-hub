@@ -18,10 +18,10 @@ Este é um projeto de sistema de processamento de transações desenvolvido em G
 ```mermaid
 graph LR
     Client --> |HTTP| TL[Transaction Ledger]
-    TL --> |Produz| Kafka
-    Kafka --> |Consome| TP[Transaction Processment]
-    TP --> |Produz Resultado| Kafka
-    TL --> |Consome Resultado| Kafka
+    TL --> |Produce| Kafka
+    Kafka --> |Consumes| TP[Transaction Processment]
+    TP --> |Produce Result| Kafka
+    TL --> |Consume Results| Kafka
 ```
 
 ## Estrutura do Projeto

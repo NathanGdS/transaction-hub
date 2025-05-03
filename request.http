@@ -14,7 +14,7 @@ Content-Type: application/json
 @transactionId = {{createTransaction.response.body.id}}
 ### GET /transactions
 
-GET http://localhost:8080/transactions
+GET http://localhost:8080/transactions?page=1&pageSize=10
 
 ### GET /transactions/:id
 GET http://localhost:8080/transaction/{{transactionId}}

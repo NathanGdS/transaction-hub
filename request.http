@@ -1,6 +1,6 @@
 
 ### POST /transactions
-
+# @name createTransaction
 POST http://localhost:8080/transaction
 Content-Type: application/json
 
@@ -11,10 +11,10 @@ Content-Type: application/json
     "description": "Compra de teste"
 }
 
+@transactionId = {{createTransaction.response.body.id}}
 ### GET /transactions
 
 GET http://localhost:8080/transactions
 
 ### GET /transactions/:id
-
-GET http://localhost:8080/transaction/b43f6fb8-a92d-4cce-9aa5-42d5e05dd191
+GET http://localhost:8080/transaction/{{transactionId}}

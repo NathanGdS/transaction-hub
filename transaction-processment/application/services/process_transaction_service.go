@@ -28,6 +28,7 @@ func (s *ProcessTransactionService) ProcessTransaction(ctx context.Context, tran
 		zap.Any("transaction", transaction),
 	)
 
+	// 4 segundos para termos alguns erros de timeout
 	ctx, cancel := context.WithTimeout(ctx, 4*time.Second)
 	defer cancel()
 
@@ -58,7 +59,7 @@ func (s *ProcessTransactionService) ProcessTransaction(ctx context.Context, tran
 
 	select {
 	case err := <-errChan:
-		<-done // Aguarda a goroutine finalizar
+		<-done
 		if err == nil {
 			s.logger.Info("transação processada com sucesso",
 				zap.Any("transaction", transaction),
@@ -82,7 +83,7 @@ func (s *ProcessTransactionService) ProcessTransaction(ctx context.Context, tran
 		return err
 
 	case <-ctx.Done():
-		<-done // Aguarda a goroutine finalizar
+		<-done
 		errorMsg := "timeout ao processar transação"
 		s.logger.Error(errorMsg,
 			zap.Any("transaction", transaction),

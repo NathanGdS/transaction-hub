@@ -28,6 +28,7 @@ graph LR
 
 ```
 .
+├── pkg/ # Common configurations
 ├── transaction-ledger/     # Transaction receiving service
 │   ├── cmd/
 │   ├── domain/
@@ -35,7 +36,7 @@ graph LR
 │   ├── application/
 │   ├── infra/
 │   └── Dockerfile
-├── transaction-processment/ # Serviço de processamento de transações
+├── transaction-processment/ # Transaction processing service
 │   ├── cmd/
 │   ├── application/
 │   └── Dockerfile
@@ -43,66 +44,112 @@ graph LR
 └── docker-compose.infra.yml
 ```
 
-## Como Executar
+## How to Run
 
-Existem duas maneiras de executar o projeto:
+There are two ways to run the project:
 
-### 1. Utilizando Docker Compose (Modo Completo)
+### 1. Using Docker Compose (Complete Mode)
 
-Este método iniciará todos os serviços em containers Docker:
+This method will start all services in Docker containers:
 
 ```bash
 docker-compose up -d
 ```
 
-Os serviços estarão disponíveis em:
+Services will be available at:
 
-- Transaction Ledger: http://localhost:8081
-- Transaction Processment: http://localhost:8082
+- Transaction Ledger: http://localhost:8080
+- Transaction Processment: No http server, only kafka consumer
 - Kafka UI: http://localhost:9021
 
-### 2. Executando Serviços Separadamente
+### 2. Running Services Separately
 
-#### 2.1 Iniciando a Infraestrutura
+#### 2.1 Starting the Infrastructure
 
-Primeiro, inicie os serviços de infraestrutura (PostgreSQL e Kafka):
+First, start the infrastructure services (PostgreSQL and Kafka):
 
 ```bash
 docker-compose -f docker-compose.infra.yml up -d
 ```
 
-#### 2.2 Executando os Serviços Localmente
+#### 2.2 Running Services Locally
 
-Em terminais separados, execute:
+In separate terminals, run:
 
-Para o Transaction Ledger:
+For Transaction Ledger:
 
 ```bash
 make run-ledger
 ```
 
-Para o Transaction Processment:
+For Transaction Processment:
 
 ```bash
 make run-processment
 ```
 
-## Fluxo de Dados
+## Data Flow
 
-1. O cliente envia uma solicitação de transação para o Transaction Ledger via API REST
-2. O Transaction Ledger valida a requisição e publica uma mensagem no tópico Kafka de transações pendentes
-3. O Transaction Processment consome a mensagem, processa a transação e publica o resultado em um tópico Kafka de resultados
-4. O Transaction Ledger consome a mensagem de resultado e atualiza o status da transação
-5. O cliente pode consultar o status da transação via API REST
+1. The client sends a transaction request to Transaction Ledger via REST API
+2. Transaction Ledger validates the request and publishes a message to the Kafka pending transactions topic
+3. Transaction Processment consumes the message, processes the transaction and publishes the result to a Kafka results topic
+4. Transaction Ledger consumes the result message and updates the transaction status
+5. The client can check the transaction status via REST API
 
-## Endpoints Principais
+## Main Endpoints
 
 ### Transaction Ledger
 
-- POST /transactions - Cria uma nova transação
-- GET /transactions - Lista todas as transações
+- POST /transactions - Creates a new transaction
+- GET /transactions - Lists all transactions
+- GET /transaction/:ID - Gets a specific transaction
 
-## Tópicos Kafka
+## Kafka Topics
 
-- `process-transactions` - Transações pendentes de processamento
-- `transaction-process-return` - Resultados do processamento das transações
+- `process-transactions` - Pending transactions for processing
+- `transaction-process-return` - Transaction processing results
+
+## Load Testing
+
+The project includes load testing capabilities. To run the load tests:
+
+For Windows:
+
+```bash
+make loader-windows
+```
+
+For Linux:
+
+```bash
+make loader-linux
+```
+
+### Load Test Results
+
+The system was tested under different scenarios:
+
+1. **10-second test**:
+
+   - Average latency: 197.31 ms
+   - Requests per second: ~999
+   - Total requests: 10k in 10.04s
+
+2. **60-second test**:
+
+   - Average latency: 417.88 ms
+   - Requests per second: ~477
+   - Total requests: 29k in 60.18s
+
+3. **5-minute test**:
+   - Average latency: 441.75 ms
+   - Requests per second: ~453
+   - Total requests: 272k in 600.34s
+
+The full file is on ./loader-results.txt
+
+The tests were performed with:
+
+- 20 concurrent connections
+- 10 pipelining factor
+- Target endpoint: http://localhost:8080/transaction

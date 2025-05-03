@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+import "github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
 
 type TransactionRepository interface {
 	Create(transaction *domain.Transaction) error
@@ -8,4 +8,5 @@ type TransactionRepository interface {
 	Update(transaction *domain.Transaction) error
 	Delete(id string) error
 	FindAll() ([]*domain.Transaction, error)
+	FindPaginated(page, pageSize int) ([]domain.Transaction, int64, error)
 }

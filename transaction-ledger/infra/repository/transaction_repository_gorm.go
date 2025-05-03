@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
 	"gorm.io/gorm"
 )
 
@@ -43,4 +43,21 @@ func (r *TransactionRepositoryGorm) FindAll() ([]*domain.Transaction, error) {
 		return nil, err
 	}
 	return transactions, nil
+}
+
+func (r *TransactionRepositoryGorm) FindPaginated(page, pageSize int) ([]domain.Transaction, int64, error) {
+	var transactions []domain.Transaction
+	var total int64
+
+	offset := (page - 1) * pageSize
+
+	if err := r.db.Model(&domain.Transaction{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := r.db.Offset(offset).Limit(pageSize).Find(&transactions).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return transactions, total, nil
 }

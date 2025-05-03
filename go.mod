@@ -1,4 +1,4 @@
-module github.com/NathanGdS/cali-challenge
+module github.com/NathanGdS/transaction-hub
 
 go 1.24
 

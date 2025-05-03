@@ -1,6 +1,6 @@
 package dto
 
-import tx "github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
+import tx "github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
 
 type TransactionRequestDto struct {
 	Amount        float64 `json:"amount" validate:"required,min=0"`
@@ -11,6 +11,14 @@ type TransactionRequestDto struct {
 
 type TransactionResponseDto struct {
 	ID string `json:"id"`
+}
+
+type PaginatedTransactionsResponseDto struct {
+	Data       []tx.Transaction `json:"data"`
+	Page       int              `json:"page"`
+	PageSize   int              `json:"pageSize"`
+	TotalItems int64            `json:"totalItems"`
+	TotalPages int              `json:"totalPages"`
 }
 
 func ToTransaction(dto *TransactionRequestDto) (*tx.Transaction, []error) {

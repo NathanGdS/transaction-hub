@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
-	dRepo "github.com/NathanGdS/cali-challenge/transaction-ledger/domain/repository"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/application/services"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain/dto"
+	dRepo "github.com/NathanGdS/transaction-hub/transaction-ledger/domain/repository"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )

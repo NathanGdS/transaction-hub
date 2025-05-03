@@ -11,3 +11,8 @@ Content-Type: application/json
     "description": "Compra de teste"
 }
 
+### GET /transactions
+
+GET http://localhost:8080/transactions
+
+

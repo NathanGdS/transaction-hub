@@ -2,12 +2,13 @@ package services
 
 import (
 	"context"
+	"math"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
-	dRepo "github.com/NathanGdS/cali-challenge/transaction-ledger/domain/repository"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain/dto"
+	dRepo "github.com/NathanGdS/transaction-hub/transaction-ledger/domain/repository"
 	"go.uber.org/zap"
 )
 
@@ -65,4 +66,28 @@ func (s *TransactionService) UpdateTransaction(ctx context.Context, transaction 
 
 func (s *TransactionService) FindByID(ctx context.Context, id string) (*domain.Transaction, error) {
 	return s.repository.FindByID(id)
+}
+
+func (s *TransactionService) FindPaginated(ctx context.Context, page, pageSize int) (*dto.PaginatedTransactionsResponseDto, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 50
+	}
+
+	transactions, total, err := s.repository.FindPaginated(page, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
+
+	return &dto.PaginatedTransactionsResponseDto{
+		Data:       transactions,
+		Page:       page,
+		PageSize:   pageSize,
+		TotalItems: total,
+		TotalPages: totalPages,
+	}, nil
 }

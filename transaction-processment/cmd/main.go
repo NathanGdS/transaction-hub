@@ -5,9 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-processment/application/consumers"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-processment/application/consumers"
 )
 
 func main() {

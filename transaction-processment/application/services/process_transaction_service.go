@@ -7,10 +7,10 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain/dto"
 	"go.uber.org/zap"
 )
 

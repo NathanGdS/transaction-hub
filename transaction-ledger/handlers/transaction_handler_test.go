@@ -8,12 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/domain/dto"
-	dRepo "github.com/NathanGdS/cali-challenge/transaction-ledger/domain/repository"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/application/services"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/domain/dto"
+	dRepo "github.com/NathanGdS/transaction-hub/transaction-ledger/domain/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/assert"
@@ -77,6 +77,14 @@ func (m *MockTransactionRepository) FindAll() ([]*domain.Transaction, error) {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*domain.Transaction), args.Error(1)
+}
+
+func (m *MockTransactionRepository) FindPaginated(page int, pageSize int) ([]domain.Transaction, int64, error) {
+	args := m.Called(page, pageSize)
+	if args.Get(0) == nil {
+		return nil, 0, args.Error(2)
+	}
+	return args.Get(0).([]domain.Transaction), args.Get(1).(int64), args.Error(2)
 }
 
 var _ akafka.KafkaBroker = (*MockKafkaBroker)(nil)

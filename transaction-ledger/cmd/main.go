@@ -5,13 +5,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/NathanGdS/cali-challenge/pkg/akafka"
-	"github.com/NathanGdS/cali-challenge/pkg/logger"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/consumers"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/application/services"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/handlers"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/infra/database"
-	"github.com/NathanGdS/cali-challenge/transaction-ledger/infra/repository"
+	"github.com/NathanGdS/transaction-hub/pkg/akafka"
+	"github.com/NathanGdS/transaction-hub/pkg/logger"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/application/consumers"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/application/services"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/handlers"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/infra/database"
+	"github.com/NathanGdS/transaction-hub/transaction-ledger/infra/repository"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -42,6 +42,7 @@ func main() {
 	transactionService := services.NewTransactionService(kafkaBroker, txRepository)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
+	router.GET("/transactions", transactionHandler.GetTransactionsPaginated)
 
 	// Graceful shutdown config
 	quit := make(chan os.Signal, 1)

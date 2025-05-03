@@ -16,7 +16,7 @@ func NewPostgresConnection() (*gorm.DB, error) {
 		getEnvOrDefault("DB_HOST", "localhost"),
 		getEnvOrDefault("DB_USER", "postgres"),
 		getEnvOrDefault("DB_PASSWORD", "postgres"),
-		getEnvOrDefault("DB_NAME", "cali"),
+		getEnvOrDefault("DB_NAME", "transaction"),
 		getEnvOrDefault("DB_PORT", "5432"),
 	)
 

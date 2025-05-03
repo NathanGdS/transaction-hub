@@ -9,3 +9,10 @@ test:
 
 test-coverage:
 	@go test -v ./... -cover
+
+loader-windows:
+	@powershell -ExecutionPolicy Bypass -File loader.ps1
+
+loader-linux:
+	@./loader.sh
+

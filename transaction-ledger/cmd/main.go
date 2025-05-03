@@ -43,6 +43,7 @@ func main() {
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	router.POST("/transaction", transactionHandler.CreateTransaction)
 	router.GET("/transactions", transactionHandler.GetTransactionsPaginated)
+	router.GET("/transaction/:id", transactionHandler.GetTransactionByID)
 
 	// Graceful shutdown config
 	quit := make(chan os.Signal, 1)

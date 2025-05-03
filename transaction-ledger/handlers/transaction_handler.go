@@ -76,3 +76,23 @@ func (h *TransactionHandler) GetTransactionsPaginated(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func (h *TransactionHandler) GetTransactionByID(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID não fornecido"})
+		return
+	}
+
+	transaction, err := h.transactionService.FindByID(c.Request.Context(), id)
+	if err != nil {
+		h.logger.Error("erro ao buscar transação",
+			zap.Error(err),
+			zap.String("id", id),
+		)
+		c.JSON(http.StatusNotFound, gin.H{"error": "transação não encontrada"})
+		return
+	}
+
+	c.JSON(http.StatusOK, transaction)
+}

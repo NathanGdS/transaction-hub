@@ -15,4 +15,6 @@ Content-Type: application/json
 
 GET http://localhost:8080/transactions
 
+### GET /transactions/:id
 
+GET http://localhost:8080/transaction/085742f4-b358-421c-a924-cbbe7fcd32fb

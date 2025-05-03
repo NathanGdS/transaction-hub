@@ -80,8 +80,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
-      transaction-ledger:
-        condition: service_started
     environment:
       KAFKA_BROKERS: host.docker.internal:9094
       DB_HOST: db

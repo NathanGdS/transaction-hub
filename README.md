@@ -59,7 +59,7 @@ Os serviços estarão disponíveis em:
 
 - Transaction Ledger: http://localhost:8081
 - Transaction Processment: http://localhost:8082
-- Kafka UI: http://localhost:8080
+- Kafka UI: http://localhost:9021
 
 ### 2. Executando Serviços Separadamente
 

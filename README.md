@@ -1,11 +1,11 @@
 # Transaction Hub
 
-Este é um projeto de sistema de processamento de transações desenvolvido em Go, utilizando uma arquitetura de microserviços. O sistema é composto por dois serviços principais que se comunicam através do Apache Kafka:
+This is a transaction processing system project developed in Go, using a microservices architecture. The system is composed of two main services that communicate through Apache Kafka:
 
-- **Transaction Ledger**: Responsável por receber as solicitações de transações via API REST
-- **Transaction Processment**: Responsável por processar as transações e retornar os resultados
+- **Transaction Ledger**: Responsible for receiving transaction requests via REST API
+- **Transaction Processment**: Responsible for processing transactions and returning the results
 
-## Tecnologias Utilizadas
+## Technologies Used
 
 - Go 1.24
 - PostgreSQL
@@ -13,7 +13,7 @@ Este é um projeto de sistema de processamento de transações desenvolvido em G
 - Docker & Docker Compose
 - REST API
 
-## Arquitetura
+## Architecture
 
 ```mermaid
 graph LR
@@ -24,11 +24,11 @@ graph LR
     TL --> |Consume Results| Kafka
 ```
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 .
-├── transaction-ledger/     # Serviço de recebimento de transações
+├── transaction-ledger/     # Transaction receiving service
 │   ├── cmd/
 │   ├── domain/
 │   ├── handlers/

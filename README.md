@@ -111,7 +111,19 @@ make run-processment
 
 ## Load Testing
 
-The project includes load testing capabilities. To run the load tests:
+The project includes load testing capabilities using Autocannon. To run the load tests, first install Autocannon:
+
+### Installing Autocannon
+
+```bash
+# Using npm
+npm install -g autocannon
+
+# Using yarn
+yarn global add autocannon
+```
+
+To run the load tests:
 
 For Windows:
 

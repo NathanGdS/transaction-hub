@@ -131,12 +131,20 @@ For Windows:
 
 ```bash
 make loader-windows
+
+or
+
+./loader.ps1
 ```
 
 For Linux:
 
 ```bash
 make loader-linux
+
+or
+
+./loader.sh
 ```
 
 ### Load Test Results

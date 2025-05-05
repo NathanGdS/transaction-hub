@@ -19,7 +19,7 @@ This is a transaction processing system project developed in Go, using a microse
 graph LR
     Client --> |HTTP| TL[Transaction Ledger]
     TL --> |Produce| Kafka
-    Kafka --> |Consumes| TP[Transaction Processment]
+    TP --> |Consumes| Kafka
     TP --> |Produce Result| Kafka
     TL --> |Consume Results| Kafka
 ```

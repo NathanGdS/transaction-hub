@@ -132,7 +132,7 @@ For Windows:
 ```bash
 make loader-windows
 
-or
+#or
 
 ./loader.ps1
 ```
@@ -142,7 +142,7 @@ For Linux:
 ```bash
 make loader-linux
 
-or
+#or
 
 ./loader.sh
 ```

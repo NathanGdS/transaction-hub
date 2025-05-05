@@ -79,13 +79,21 @@ In separate terminals, run:
 For Transaction Ledger:
 
 ```bash
+# with makefile
 make run-ledger
+
+# directly
+go run transaction-ledger/cmd/main.go
 ```
 
 For Transaction Processment:
 
 ```bash
+# with makefile
 make run-processment
+
+#directly
+go run transaction-processment/cmd/main.go
 ```
 
 ## Data Flow

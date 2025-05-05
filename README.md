@@ -130,9 +130,10 @@ To run the load tests:
 For Windows:
 
 ```bash
+# with makefile
 make loader-windows
 
-#or
+# executing directly
 
 ./loader.ps1
 ```
@@ -140,9 +141,10 @@ make loader-windows
 For Linux:
 
 ```bash
+# with makefile
 make loader-linux
 
-#or
+# executing directly
 
 ./loader.sh
 ```

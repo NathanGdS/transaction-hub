@@ -134,7 +134,6 @@ For Windows:
 make loader-windows
 
 # executing directly
-
 ./loader.ps1
 ```
 
@@ -145,7 +144,6 @@ For Linux:
 make loader-linux
 
 # executing directly
-
 ./loader.sh
 ```
 
